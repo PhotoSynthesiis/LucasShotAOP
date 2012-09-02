@@ -1,4 +1,4 @@
-package MainApp;
+package AOP_Test_Classes;
 
 import arseneReaction.WengerReactionBeforeAdvice;
 import interfaces.PlayerAction;
@@ -8,10 +8,10 @@ import org.springframework.aop.framework.ProxyFactory;
 
 public class TestBeforeLucasGetTheBall {
     public static void main(String[] args) {
-        PlayerAction playerAction = new LucasAction();
-        BeforeAdvice beforeAdvice = new WengerReactionBeforeAdvice();
+        PlayerAction playerAction = new LucasAction();      // target
+        BeforeAdvice beforeAdvice = new WengerReactionBeforeAdvice();    //advice
 
-        ProxyFactory proxyFactory = new ProxyFactory();
+        ProxyFactory proxyFactory = new ProxyFactory();   //proxyFactory
         proxyFactory.setTarget(playerAction);
         proxyFactory.addAdvice(beforeAdvice);
 

@@ -1,4 +1,4 @@
-package MainApp;
+package AOP_Test_Classes;
 
 import arseneReaction.WengerReactionAfterReturningAdvice;
 import interfaces.PlayerAction;

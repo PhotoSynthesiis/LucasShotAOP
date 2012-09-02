@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <bean id="WengerReactionBeforeAdvice" class="arseneReaction.WengerReactionBeforeAdvice"/>
+    <bean id="WengerReactionAfterReturningAdvice" class="arseneReaction.WengerReactionAfterReturningAdvice"/>
+    <bean id="WengerReactionMethodnterceptor" class="arseneReaction.WengerReactionMethodnterceptor"/>
+    <bean id="targetLucas" class="lucasAction.LucasAction"/>
+
+    <bean id="targetProxy" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="proxyTargetClass">
+            <value>true</value>
+        </property>
+        <property name="interceptorNames">
+            <list>
+                <value>WengerReactionBeforeAdvice</value>
+                <value>WengerReactionAfterReturningAdvice</value>
+                <value>WengerReactionMethodnterceptor</value>
+            </list>
+        </property>
+        <property name="target" ref="targetLucas"/>
+    </bean>
+
+    <bean id="pmonitor" class="introduce.PerformanceMonitor"/>
+    <bean id="forumServiceTarget" class="introduce.ForumService"/>
+    <bean id="forumService" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="interfaces">
+            <value>interfaces.Monitorable</value>
+        </property>
+        <property name="target">
+            <value>forumServiceTarget</value>
+        </property>
+        <property name="interceptorNames">
+            <value>pmonitor</value>
+        </property>
+        <property name="proxyTargetClass">
+            <value>true</value>
+        </property>
+    </bean>
+
+    <!--*****************下面是静态切面的配置***************-->
+
+    <bean id="waiterTarget" class="SellerAndWaiter.Waiter"/>
+    <bean id="sellerTarget" class="SellerAndWaiter.Seller"/>
+    <bean id="greetingAdvice" class="staticMethodMatcherPointcutAdvisor.GreetingBeforeAdvice"/>
+    <bean id="greetingAdvisor" class="staticMethodMatcherPointcutAdvisor.GreetingAdvisor">
+        <property name="advice" ref="greetingAdvice"/>
+    </bean>
+    <bean id="parent" abstract="true" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="interceptorNames">
+            <value>greetingAdvisor</value>
+        </property>
+        <property name="proxyTargetClass">
+            <value>true</value>
+        </property>
+    </bean>
+    <bean id="waiter" parent="parent">
+        <property name="target" ref="waiterTarget"/>
+    </bean>
+    <bean id="seller" parent="parent">
+        <property name="target" ref="sellerTarget"/>
+    </bean>
+
+    <!--************下面是动态切面的配置*****************-->
+    <!--<bean id="waiterTarget" class="SellerAndWaiter.Waiter"/>     //因为上面已经配置了-->
+    <bean id="dynamicAdvisor" class="org.springframework.aop.support.DefaultPointcutAdvisor">
+        <property name="pointcut">
+            <bean class="DynamicMethodMatcherPointcut.GreetingDynamicPointcut"/>
+        </property>
+        <property name="advice">
+            <bean class="staticMethodMatcherPointcutAdvisor.GreetingBeforeAdvice"/>
+        </property>
+    </bean>
+    <bean id="waiter2" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="interceptorNames">
+            <value>dynamicAdvisor</value>
+        </property>
+        <property name="target" ref="waiterTarget"/>
+        <property name="proxyTargetClass">
+            <value>true</value>
+        </property>
+    </bean>
+</beans>
