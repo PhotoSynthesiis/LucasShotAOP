@@ -83,4 +83,60 @@
             <value>true</value>
         </property>
     </bean>
+
+    <!--************下面是流程切面的配置*****************-->
+    <!--<bean id="greetingAdvice" class="staticMethodMatcherPointcutAdvisor.GreetingBeforeAdvice"/>    上面已经配置-->
+    <!--<bean id="waiterTarget" class="SellerAndWaiter.Waiter"/>   上面已经配置过了     -->
+    <bean id="controlFlowPointcut" class="org.springframework.aop.support.ControlFlowPointcut">
+        <constructor-arg type="java.lang.Class" value="Waiter_ControlFlowPointcut.WaiterDelegate"/>
+        <constructor-arg type="java.lang.String" value="service"/>
+    </bean>
+    <bean id="controlFlowAdvisor" class="org.springframework.aop.support.DefaultPointcutAdvisor">
+        <property name="pointcut" ref="controlFlowPointcut"/>
+        <property name="advice" ref="greetingAdvice"/>
+    </bean>
+    <bean id="waiter3" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="interceptorNames">
+            <value>controlFlowAdvisor</value>
+        </property>
+        <property name="target" ref="waiterTarget"/>
+        <property name="proxyTargetClass">
+            <value>true</value>
+        </property>
+    </bean>
+
+    <!--************下面是复合切面的配置*****************-->
+    <bean id="greetingComposablePointcut" class="ComposablePointcut.GreetingComposablePointcut"/>
+    <bean id="composableAdvisor" class="org.springframework.aop.support.DefaultPointcutAdvisor">
+        <property name="pointcut">
+            <value>#{greetingComposablePointcut.intersectionPointcut}</value>
+        </property>
+        <property name="advice" ref="greetingAdvice"/>
+    </bean>
+    <bean id="waiter4" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="interceptorNames">
+            <value>composableAdvisor</value>
+        </property>
+        <property name="target" ref="waiterTarget"/>
+        <property name="proxyTargetClass">
+            <value>true</value>
+        </property>
+    </bean>
+
+    <!--************下面是引介切面的配置*****************-->
+    <bean id="introduceAdvisor" class="org.springframework.aop.support.DefaultIntroductionAdvisor">
+        <constructor-arg>
+            <bean class="introduce.ControllablePerformanceMonitor"/>
+        </constructor-arg>
+    </bean>
+    <bean id="forumServiceTarget" class="introduce.ForumService"/>
+    <bean id="forumService" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="interceptorNames">
+            <value>introduceAdvisor</value>
+        </property>
+        <property name="target" ref="forumServiceTarget" />
+        <property name="proxyTargetClass">
+            <value>true</value>
+        </property>
+    </bean>
 </beans>
